@@ -2,8 +2,7 @@ use std::ffi::OsStr;
 use std::io::{Read, Write};
 use std::path::Path;
 use crate::DEFAULT_DOWNLOAD_DIRECTORY;
-use crate::post::{Page, Post};
-use crate::images::Images;
+use crate::post::{Page};
 
 pub fn cmd_pause() {
     let mut stdin = std::io::stdin();
@@ -28,8 +27,7 @@ pub fn parse_file_extension(file_name: &str) -> Option<&str> {
     Path::new(file_name).extension().and_then(OsStr::to_str)
 }
 
-pub fn get_chosen_url(mut page: Page) -> Result<Vec<(i64, String)>, anyhow::Error> {
-    let mut chosen_urls: Vec<String> = Vec::new();
+pub fn get_chosen_url(page: Page) -> Result<Vec<(i64, String)>, anyhow::Error> {
     let mut images: Vec<(i64, String)> = Vec::new();
     let mut chosen_url: String;
 

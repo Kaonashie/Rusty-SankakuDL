@@ -82,6 +82,6 @@ fn main() {
     let page: Page = serde_json::from_str(&res).unwrap();
     let urls = get_chosen_url(page).unwrap();
     for image in urls {
-        download_file(image.1.as_str(), image.0);
+        download_file(image.1.as_str(), image.0).expect("TODO: panic message");
     }
 }
