@@ -5,10 +5,11 @@ use std::io::{Write};
 use std::str;
 use url::Url;
 use crate::post::Page;
-use crate::utils::{create_dl_directory, parse_file_extension};
+use crate::utils::{create_dl_directory, get_chosen_url, parse_file_extension};
 
 mod post;
 mod utils;
+mod images;
 
 struct Collector(Vec<u8>);
 impl Handler for Collector {
@@ -52,35 +53,6 @@ fn download_file(file_url: &str, post_id: i64) -> Result<()> {
     Ok(())
 }
 
-fn parse_response(data_input: &str) -> Result<(String, i64)> {
-    let mut p: Page = serde_json::from_str(&data_input)?;
-    let post_1 = &mut p.post[0];
-    let post_id = post_1.id.as_i64().unwrap();
-
-    let chosen_url: &str;
-
-    if post_1.file_url  != None{
-        println!("File url present.\nWill attempt to download file in 'original' quality.");
-        let file_url = post_1.file_url.as_mut().unwrap();
-        // download_file(file_url, post_id).ok();
-        chosen_url = file_url.as_str();
-    } else if post_1.preview_url != None {
-        println!("File url not present.\nWill attempt to download file in 'preview' quality.");
-        let preview_url = post_1.preview_url.as_mut().unwrap();
-        // download_file(preview_url, post_id).ok();
-        chosen_url = preview_url.as_str();
-    } else if post_1.sample_url != None {
-        println!("File and preview urls missing.\nWill attempt to download file in 'sample' quality.");
-        let sample_url = post_1.sample_url.as_mut().unwrap();
-        // download_file(sample_url, post_id).ok();
-        chosen_url = sample_url.as_str();
-    } else {
-        println!("No urls found. Try again later.");
-        chosen_url = "NULL";
-    }
-    Ok((chosen_url.to_owned(), post_id.to_owned()))
-}
-
 fn single_file_request_to_vec() -> std::result::Result<String, anyhow::Error> {
     let mut list = List::new();
     let mut easy2 = Easy2::new(Collector(Vec::new()));
@@ -94,7 +66,7 @@ fn single_file_request_to_vec() -> std::result::Result<String, anyhow::Error> {
     list.append("user-agent: Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36").ok();
 
     easy2.get(true).unwrap();
-    easy2.url("https://capi-v2.sankakucomplex.com/posts/keyset?limit=1").expect("TODO: panic message");
+    easy2.url("https://capi-v2.sankakucomplex.com/posts/keyset?limit=10").expect("TODO: panic message");
     easy2.http_headers(list).unwrap();
     easy2.perform().unwrap();
 
@@ -107,8 +79,9 @@ fn single_file_request_to_vec() -> std::result::Result<String, anyhow::Error> {
 fn main() {
     create_dl_directory();
     let res = single_file_request_to_vec().expect("TODO: panic message");
-    let parsed_res = parse_response(res.as_str()).expect("TODO: panic message");
-    let chosen_url = parsed_res.0.as_str();
-    let post_id = parsed_res.1;
-    download_file(chosen_url, post_id).expect("TODO: panic message");
+    let page: Page = serde_json::from_str(&res).unwrap();
+    let urls = get_chosen_url(page).unwrap();
+    for image in urls {
+        download_file(image.1.as_str(), image.0);
+    }
 }
