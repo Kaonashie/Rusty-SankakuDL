@@ -1,0 +1,7 @@
+hard_tabs = true
+newline_style = "unix"
+use_field_init_shorthand = true
+use_try_shorthand = true
+group_imports = "StdExternalCrate"
+imports_granularity = "Crate"
+version = "Two"
