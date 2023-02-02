@@ -2,7 +2,9 @@
 
 > Simple parser and downloader built in Rust.
 > 
-> Inspired by [asadahimeka/booru-search] https://github.com/asadahimeka/booru-search <img src="https://avatars.githubusercontent.com/u/31837214?v=4" width="100">
+> Inspired by [asadahimeka/booru-search] https://github.com/asadahimeka/booru-search 
+> 
+> <img src="https://avatars.githubusercontent.com/u/31837214?v=4" width="100">
 
 Currently very limited but planning to add more features soon.
 
