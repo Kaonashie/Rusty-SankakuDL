@@ -1,10 +1,9 @@
-use std::{fs::File, io::Write, str};
+use std::{fs::File, io::Write, str, path::Path};
 
 use curl::easy::{Easy, Easy2, Handler, List, WriteError};
 use serde_json::Result;
-use url::Url;
 
-use crate::utils::parse_file_extension;
+use crate::images::Image;
 
 struct Collector(Vec<u8>);
 impl Handler for Collector {
@@ -14,41 +13,37 @@ impl Handler for Collector {
 	}
 }
 
-pub static DEFAULT_DOWNLOAD_DIRECTORY: &str = "./sankaku-downloads";
+pub const DEFAULT_DOWNLOAD_DIRECTORY: &str = "./sankaku-downloads";
 
-pub fn download_file(file_url: &str, post_id: i64) -> Result<()> {
+pub fn download_file(image: &Image) -> Result<()> {
 	let mut easy_dl = Easy::new();
 	let mut list_dl = List::new();
-	let parser = Url::parse(file_url).unwrap();
-	let url_segments = parser.path_segments().unwrap();
-	let file_name_url = url_segments.last().unwrap();
-	let file_extension = parse_file_extension(file_name_url).unwrap();
-	let file_name = format!("Post_{}.{}", post_id, file_extension);
-	let file_path = format!("./{}/{}", DEFAULT_DOWNLOAD_DIRECTORY, file_name);
-	let mut file = File::create(&file_path).unwrap();
 	list_dl.append("authority: s.sankakucomplex.com").ok();
 	list_dl.append("user-agent: Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36").ok();
+	let file_path = format!("./{}/{}", DEFAULT_DOWNLOAD_DIRECTORY, image.file_name);
 
-	println!("Attempting to download file: {:?}", file_name_url);
-
-	easy_dl.url(file_url).unwrap();
-	easy_dl
-		.write_function(move |data| {
-			file.write_all(data).unwrap();
-			Ok(data.len())
-		})
-		.unwrap();
-	easy_dl.http_headers(list_dl).unwrap();
-	easy_dl.perform().unwrap();
-
-	println!(
-		"Successfully downloaded file: {} \nRenamed to {}.",
-		file_name_url, &file_name
-	);
+	if Path::new(&file_path).exists() {
+		let mut file = File::create(file_path).unwrap();
+		easy_dl.url(image.file_url.as_str()).unwrap();
+		easy_dl
+			.write_function(move |data| {
+				file.write_all(data).unwrap();
+				Ok(data.len())
+			})
+			.unwrap();
+		easy_dl.http_headers(list_dl).unwrap();
+		easy_dl.perform().unwrap();
+		println!(
+			"Successfully downloaded file: {} \nRenamed to {}.",
+			image.file_name_url, &image.file_name
+		);
+	} else {
+		println!("File already exists.");
+	}
 	Ok(())
 }
 
-pub fn single_file_request_to_vec() -> std::result::Result<String, anyhow::Error> {
+pub fn single_file_request_to_vec(num_of_image: u32) -> std::result::Result<String, anyhow::Error> {
 	let mut list = List::new();
 	let mut easy2 = Easy2::new(Collector(Vec::new()));
 
@@ -62,14 +57,19 @@ pub fn single_file_request_to_vec() -> std::result::Result<String, anyhow::Error
 
 	easy2.get(true).unwrap();
 	easy2
-		.url("https://capi-v2.sankakucomplex.com/posts/keyset?limit=10")
-		.expect("TODO: panic message");
+		.url(
+			format!(
+				"https://capi-v2.sankakucomplex.com/posts/keyset?limit={}",
+				num_of_image
+			)
+			.as_str(),
+		)
+		.expect("Failed to get response from Sankaku.");
 	easy2.http_headers(list).unwrap();
 	easy2.perform().unwrap();
 
 	let content = easy2.get_ref();
 	let content_string = String::from_utf8_lossy(&content.0);
-	
-    
+
 	Ok(content_string.into_owned())
 }
