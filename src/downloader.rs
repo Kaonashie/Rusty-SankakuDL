@@ -22,7 +22,7 @@ pub fn download_file(image: &Image) -> Result<()> {
 	list_dl.append("user-agent: Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36").ok();
 	let file_path = format!("./{}/{}", DEFAULT_DOWNLOAD_DIRECTORY, image.file_name);
 
-	if Path::new(&file_path).exists() {
+	if !Path::new(&file_path).exists() {
 		let mut file = File::create(file_path).unwrap();
 		easy_dl.url(image.file_url.as_str()).unwrap();
 		easy_dl
