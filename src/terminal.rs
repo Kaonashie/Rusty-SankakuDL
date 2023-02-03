@@ -5,6 +5,5 @@ pub fn term_init() -> u32 {
 		.with_prompt("How many images to download?")
 		.interact_text()
 		.unwrap();
-	println!("Number of images to download: {}", input);
 	return input;
 }
