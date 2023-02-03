@@ -18,6 +18,7 @@ Currently very limited but planning to add more features soon.
 
 ### Todo
 - [x] Upgrade to a better http client.
+- [ ] Add async abilities to speed up the download
 - [ ] Allow custom download directory.
 - [ ] Allow custom tags.
 - [ ] More refined TUI.
