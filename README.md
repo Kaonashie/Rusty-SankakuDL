@@ -4,7 +4,7 @@
 > 
 > Inspired by [asadahimeka/booru-search] https://github.com/asadahimeka/booru-search 
 > 
-> <img src="https://avatars.githubusercontent.com/u/31837214?v=4" width="100">
+> <img src="https://avatars.githubusercontent.com/u/31837214?v=4" width="100" alt="Avatar">
 
 Currently very limited but planning to add more features soon.
 
@@ -17,9 +17,11 @@ Currently very limited but planning to add more features soon.
 
 
 ### Todo
+- [x] Upgrade to a better http client.
 - [ ] Allow custom download directory.
 - [ ] Allow custom tags.
 - [ ] More refined TUI.
+- [ ] Create an API backend for fetching with js libraries
 - [ ] Doing my laundry.
 - [ ] Build a frontend viewer.
 

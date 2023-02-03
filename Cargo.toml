@@ -22,4 +22,5 @@ indicatif = "0.17.3"
 # Actix seems good for now.
 actix-rt = "2.8.0"
 awc = { version = "3.1.0", features = ["rustls"] }
+# For size limit on response body
 bytes = "1.4.0"

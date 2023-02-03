@@ -11,7 +11,7 @@ mod utils;
 fn dl_init(num_of_images: u32) {
 	create_dl_directory();
 	let collection = ImageCollection::new(num_of_images);
-	collection.print_debug();
+	// collection.print_debug(); Debug(Duh)
 	collection.save_all_images();
 }
 

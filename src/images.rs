@@ -38,7 +38,10 @@ impl ImageCollection {
 				};
 				collection.images.push(image);
 			} else {
-				println!("Image doesn't have a file url. Trying next image...");
+				println!(
+					"Image from post: {} doesn't have a file url.\n Trying next image...",
+					post.id
+				);
 			}
 		}
 		collection
@@ -58,6 +61,7 @@ impl ImageCollection {
 		}
 	}
 
+	#[allow(dead_code)]
 	pub fn print_debug(&self) {
 		for image in &self.images {
 			println!("Image's full url: {:?}", image.file_url);
@@ -68,6 +72,7 @@ impl ImageCollection {
 		for image in &self.images {
 			save_file_to_disk(image).expect("TODO: panic message");
 		}
+		println!("Saved {} Images/Videos to disk.", &self.images.len());
 	}
 
 	pub fn verify_file_url(post_file_url: Option<String>) -> Result<(), Error> {
