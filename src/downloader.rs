@@ -1,7 +1,11 @@
 use std::{fs::File, io::Write, str, path::Path};
 
-use curl::easy::{Easy, Easy2, Handler, List, WriteError};
-use serde_json::Result;
+use actix_rt::System;
+use anyhow::Error;
+use awc::Client;
+
+use curl::easy::{Easy2, Handler, List, WriteError};
+
 
 use crate::images::Image;
 
@@ -15,35 +19,37 @@ impl Handler for Collector {
 
 pub const DEFAULT_DOWNLOAD_DIRECTORY: &str = "./sankaku-downloads";
 
-pub fn download_file(image: &Image) -> Result<()> {
-	let mut easy_dl = Easy::new();
-	let mut list_dl = List::new();
-	list_dl.append("authority: s.sankakucomplex.com").ok();
-	list_dl.append("user-agent: Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36").ok();
-	let file_path = format!("./{}/{}", DEFAULT_DOWNLOAD_DIRECTORY, image.file_name);
-
-	if !Path::new(&file_path).exists() {
-		let mut file = File::create(file_path).unwrap();
-		easy_dl.url(image.file_url.as_str()).unwrap();
-		easy_dl
-			.write_function(move |data| {
-				file.write_all(data).unwrap();
-				Ok(data.len())
-			})
+fn download_file(image: &Image) -> Result<bytes::Bytes, Error> {
+	System::new().block_on(async {
+		let client = Client::default();
+		let mut res = client
+			.get(&image.file_url)
+			.insert_header(("authority", "s.sankakucomplex.com"))
+			.insert_header(("user-agent", "Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36"))
+			.send()
+			.await
 			.unwrap();
-		easy_dl.http_headers(list_dl).unwrap();
-		easy_dl.perform().unwrap();
-		println!(
-			"Successfully downloaded file: {} \nRenamed to {}.",
-			image.file_name_url, &image.file_name
-		);
-	} else {
-		println!("File already exists.");
-	}
-	Ok(())
+		let body = res.body().await?;
+		// println!("Response: {:?}", res); Debug
+		Ok(body)
+	})
 }
 
-pub fn single_file_request_to_vec(num_of_image: u32) -> std::result::Result<String, anyhow::Error> {
+pub fn save_file_to_disk(image: &Image) -> Result<(), Error> {
+		let file_path = format!("./{}/{}", DEFAULT_DOWNLOAD_DIRECTORY, image.file_name);
+
+		if !Path::new(&file_path).exists() {
+			let mut file = File::create(file_path).expect("Failed to create file.");
+			let data = download_file(image).expect("Failed to download file.");
+			file.write_all(&*data).expect("Failed to write image bytes into file.");
+		} else {
+			println!("File already exists on disk.");
+		}
+		Ok(())
+	}
+
+
+pub fn single_file_request_to_vec(num_of_image: u32) -> Result<String, Error> {
 	let mut list = List::new();
 	let mut easy2 = Easy2::new(Collector(Vec::new()));
 

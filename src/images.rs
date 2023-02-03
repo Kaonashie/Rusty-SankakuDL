@@ -2,7 +2,9 @@ use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use crate::{downloader::download_file, post::Page, utils::parse_file_extension};
+use crate::{post::Page, utils::parse_file_extension};
+use crate::downloader::save_file_to_disk;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ImageCollection {
 	images: Vec<Image>,
@@ -60,7 +62,7 @@ impl ImageCollection {
 
 	pub fn download_all_image(&self) {
 		for image in &self.images {
-			download_file(image).expect("Failed to download file.");
+			save_file_to_disk(image).expect("TODO: panic message");
 		}
 	}
 

@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 error-chain = "0.12"
-curl = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 url = "2.3"
@@ -17,3 +16,9 @@ anyhow = "1.0.68"
 console = "0.15.5"
 dialoguer = "0.10.3"
 indicatif = "0.17.3"
+
+# New http client. Curl doesn't do it for me.
+# Actix seems good for now.
+actix-rt = "2.8.0"
+awc = { version = "3.1.0", features = ["rustls"]}
+bytes = "1.4.0"
