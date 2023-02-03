@@ -5,3 +5,6 @@ use_try_shorthand = true
 group_imports = "StdExternalCrate"
 imports_granularity = "Crate"
 version = "Two"
+fn_params_layout = "Compressed"
+#fn_call_width = 200
+max_width = 120

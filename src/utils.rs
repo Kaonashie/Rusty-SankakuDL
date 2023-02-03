@@ -20,8 +20,7 @@ pub fn create_dl_directory() {
 
 	if !is_created {
 		println!("No downloads folder found.\nCreating the default one...");
-		std::fs::create_dir(DEFAULT_DOWNLOAD_DIRECTORY)
-			.expect("Failed to created local downloads directory.");
+		std::fs::create_dir(DEFAULT_DOWNLOAD_DIRECTORY).expect("Failed to created local downloads directory.");
 		cmd_pause();
 	}
 }
