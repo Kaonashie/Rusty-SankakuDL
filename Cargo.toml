@@ -1,5 +1,5 @@
 [package]
-name = "sankaku-parser"
+name = "Rusty-SankakuDL"
 version = "0.1.0"
 edition = "2021"
 
