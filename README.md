@@ -18,11 +18,12 @@ Currently very limited but planning to add more features soon.
 
 ### Todo
 - [x] Upgrade to a better http client.
-- [ ] Add async abilities to speed up the download
+- [ ] Add async abilities to speed up the download.
 - [ ] Allow custom download directory.
 - [ ] Allow custom tags.
+- [ ] First release.
 - [ ] More refined TUI.
-- [ ] Create an API backend for fetching with js libraries
+- [ ] Create an API backend for fetching with js libraries.
 - [ ] Doing my laundry.
 - [ ] Build a frontend viewer.
 
