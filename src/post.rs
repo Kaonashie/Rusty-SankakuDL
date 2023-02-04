@@ -1,5 +1,8 @@
+use actix_rt::System;
+use anyhow::Error;
+use awc::Client;
 use serde::{Deserialize, Serialize};
-use serde_json::Number;
+use serde_json::{Number, Value};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Page {
@@ -90,5 +93,35 @@ struct Author {
 impl AsRef<Post> for Post {
 	fn as_ref(&self) -> &Post {
 		self
+	}
+}
+
+impl Page {
+	pub(crate) fn new(num_of_images: u32) -> Self {
+		let res = Self::request_page(num_of_images).expect("Failed to request page data.");
+		let page: Page = serde_json::from_value(res).unwrap();
+
+		page
+	}
+	fn request_page(num_of_image: u32) -> Result<Value, Error> {
+		System::new().block_on(async {
+			let client = Client::default();
+			let mut res = client
+				.get(format!("https://capi-v2.sankakucomplex.com/posts/keyset?limit={}", num_of_image).as_str())
+				.insert_header(("authority", "capi-v2.sankakucomplex.com"))
+				.insert_header(("access-control-request-headers", "client-type, platform"))
+				.insert_header(("access-control-request-method", "GET"))
+				.insert_header(("origin", "https://beta.sankakucomplex.com"))
+				.insert_header(("referer", "https://beta.sankakucomplex.com"))
+				.insert_header((
+					"user-agent",
+					"Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36",
+				))
+				.send()
+				.await
+				.unwrap();
+			let content = res.json::<Value>().await?;
+			Ok(content)
+		})
 	}
 }
