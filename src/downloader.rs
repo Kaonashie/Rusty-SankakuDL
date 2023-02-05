@@ -4,7 +4,7 @@ use actix_rt::System;
 use anyhow::Error;
 use awc::Client;
 
-use crate::images::Image;
+use crate::structure::images::Image;
 
 pub const DEFAULT_DOWNLOAD_DIRECTORY: &str = "./sankaku-downloads";
 

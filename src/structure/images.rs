@@ -2,7 +2,7 @@ use anyhow::{anyhow, Error};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use crate::{downloader::save_file_to_disk, post::Page, utils::parse_file_extension};
+use crate::{downloader::save_file_to_disk, structure::post::Page, utils::parse_file_extension};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ImageCollection {

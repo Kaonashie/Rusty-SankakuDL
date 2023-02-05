@@ -1,10 +1,8 @@
-use images::ImageCollection;
-
-use crate::{post::Page, terminal::term_init, utils::create_dl_directory};
+use crate::structure::{images::ImageCollection, post::Page};
+use crate::{terminal::term_init, utils::create_dl_directory};
 
 mod downloader;
-mod images;
-mod post;
+mod structure;
 mod terminal;
 mod utils;
 
