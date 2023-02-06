@@ -17,7 +17,7 @@ pub struct Image {
 }
 
 impl ImageCollection {
-	pub fn new(page: Page) -> Self {
+	pub async fn new(page: Page) -> Self {
 		let mut collection: ImageCollection = ImageCollection { images: Vec::new() };
 
 		for post in page.post {
@@ -64,9 +64,9 @@ impl ImageCollection {
 		}
 	}
 
-	pub fn save_all_images(&self) {
+	pub async fn save_all_images(&self) {
 		for image in &self.images {
-			save_file_to_disk(image).expect("TODO: panic message");
+			save_file_to_disk(image).await.expect("TODO: panic message");
 		}
 		println!("Saved {} Images/Videos to disk.", &self.images.len());
 	}

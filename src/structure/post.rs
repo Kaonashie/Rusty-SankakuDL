@@ -1,6 +1,6 @@
-use actix_rt::System;
 use anyhow::Error;
 use awc::Client;
+
 use serde::{Deserialize, Serialize};
 use serde_json::{Number, Value};
 
@@ -15,7 +15,7 @@ struct Meta {
 	next: String,
 	prev: Option<serde_json::Value>,
 }
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Post {
 	pub(crate) id: Number,
 	rating: String,
@@ -58,7 +58,7 @@ pub struct Post {
 	tags: Vec<Tag>,
 	video_duration: Option<serde_json::Value>,
 }
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 struct Tag {
 	id: i64,
 	name_en: String,
@@ -77,13 +77,13 @@ struct Tag {
 	total_pool_count: i64,
 	name: String,
 }
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 struct CreatedAt {
 	json_class: String,
 	s: i64,
 	n: i64,
 }
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 struct Author {
 	id: i64,
 	name: String,
@@ -97,31 +97,65 @@ impl AsRef<Post> for Post {
 }
 
 impl Page {
-	pub(crate) fn new(num_of_images: u32) -> Self {
-		let res = Self::request_page(num_of_images).expect("Failed to request page data.");
+	pub(crate) async fn new(num_of_images: u32) -> Self {
+		let res = Self::request_page(num_of_images).await.unwrap();
 		let page: Page = serde_json::from_value(res).unwrap();
 
 		page
 	}
-	fn request_page(num_of_image: u32) -> Result<Value, Error> {
-		System::new().block_on(async {
-			let client = Client::default();
-			let mut res = client
-				.get(format!("https://capi-v2.sankakucomplex.com/posts/keyset?limit={}", num_of_image).as_str())
-				.insert_header(("authority", "capi-v2.sankakucomplex.com"))
-				.insert_header(("access-control-request-headers", "client-type, platform"))
-				.insert_header(("access-control-request-method", "GET"))
-				.insert_header(("origin", "https://beta.sankakucomplex.com"))
-				.insert_header(("referer", "https://beta.sankakucomplex.com"))
-				.insert_header((
-					"user-agent",
-					"Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36",
-				))
-				.send()
-				.await
-				.unwrap();
-			let content = res.json::<Value>().await?;
-			Ok(content)
-		})
+	pub async fn request_page(num_of_image: u32) -> Result<Value, Error> {
+		let client = Client::default();
+		let mut res = client
+			.get(format!("https://capi-v2.sankakucomplex.com/posts/keyset?limit={}", num_of_image).as_str())
+			.insert_header(("authority", "capi-v2.sankakucomplex.com"))
+			.insert_header(("access-control-request-headers", "client-type, platform"))
+			.insert_header(("access-control-request-method", "GET"))
+			.insert_header(("origin", "https://beta.sankakucomplex.com"))
+			.insert_header(("referer", "https://beta.sankakucomplex.com"))
+			.insert_header((
+				"user-agent",
+				"Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36",
+			))
+			.send()
+			.await
+			.unwrap();
+		let content = res.json::<Value>().await?;
+		Ok(content)
+	}
+}
+
+impl Post {
+	pub async fn new(post_id: u32) -> Self {
+		let res = Self::request_post(post_id).await.expect("Failed to request post.");
+		let json: Vec<Post> = serde_json::from_value(res).unwrap();
+		let post: Post = json[0].clone();
+		post
+	}
+
+	async fn request_post(post_id: u32) -> Result<Value, Error> {
+		let client = Client::default();
+		let mut res = client
+			.get(
+				format!(
+					"https://capi-v2.sankakucomplex.com/posts?lang=en&page=1&limit=1&tags=id_range:{}",
+					post_id
+				)
+				.as_str(),
+			)
+			.insert_header(("authority", "capi-v2.sankakucomplex.com"))
+			.insert_header(("origin", "https://beta.sankakucomplex.com"))
+			.insert_header(("referer", "https://beta.sankakucomplex.com"))
+			.insert_header((
+				"user-agent",
+				"Mozilla/5.0 (Linux) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36",
+			))
+			.send()
+			.await
+			.unwrap();
+		// println!("{:?}", res.headers());
+
+		let contents = res.json::<Value>().await?;
+
+		Ok(contents)
 	}
 }

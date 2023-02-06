@@ -1,20 +1,30 @@
+use utils::create_dl_directory;
+
 use crate::structure::{images::ImageCollection, post::Page};
-use crate::{terminal::term_init, utils::create_dl_directory};
 
 mod downloader;
+mod server;
 mod structure;
 mod terminal;
 mod utils;
 
-fn dl_init(num_of_images: u32) {
+async fn dl_init(num_of_images: u32) -> std::io::Result<()> {
 	create_dl_directory();
-	let page = Page::new(num_of_images);
-	let collection = ImageCollection::new(page);
+	let page = Page::new(num_of_images).await;
+	let collection = ImageCollection::new(page).await;
 	// collection.print_debug(); Debug(Duh)
-	collection.save_all_images();
+	collection.save_all_images().await;
+	Ok(())
 }
 
-fn main() {
-	let num_of_images = term_init();
-	dl_init(num_of_images);
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+	let selection: bool = terminal::server_or_dl();
+	if selection {
+		server::init().await.unwrap();
+	} else {
+		let num_of_images = terminal::term_init();
+		dl_init(num_of_images).await;
+	}
+	Ok(())
 }

@@ -1,9 +1,9 @@
 # Rusty-SankakuDL
 
 > Simple parser and downloader built in Rust.
-> 
-> Inspired by [asadahimeka/booru-search] https://github.com/asadahimeka/booru-search 
-> 
+>
+> Inspired by [asadahimeka/booru-search] <https://github.com/asadahimeka/booru-search>
+>
 > <img src="https://avatars.githubusercontent.com/u/31837214?v=4" width="100" alt="Avatar">
 
 Currently very limited but planning to add more features soon.
@@ -15,16 +15,17 @@ Currently very limited but planning to add more features soon.
 * Fast.
 * Rusty.
 
-
 ### Todo
+
 - [x] Upgrade to a better http client.
-- [ ] Add async abilities to speed up the download.
-- [ ] Allow custom download directory.
-- [ ] Allow custom tags.
-- [ ] First release.
-- [ ] More refined TUI.
-- [ ] Create an API backend for fetching with js libraries.
-- [ ] Doing my laundry.
-- [ ] Build a frontend viewer.
+* [x] Add async abilities to speed up the download.
+* [ ] Actually use the async abilities
+* [ ] Allow custom download directory.
+* [ ] Allow custom tags.
+* [ ] First release.
+* [ ] More refined TUI.
+* [x] Create an API backend for fetching with js libraries.
+* [ ] Doing my laundry.
+* [ ] Build a frontend viewer.
 
 Again. Would have been a pain without himeka's work. Tyvm whoever you are!
