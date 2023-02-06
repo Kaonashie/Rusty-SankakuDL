@@ -17,7 +17,8 @@ Currently very limited but planning to add more features soon.
 
 ### Todo
 
-- [x] Upgrade to a better http client.
+* [x] Upgrade to a better http client.
+* [ ] OMG ADD COMMENTS!
 * [x] Add async abilities to speed up the download.
 * [ ] Actually use the async abilities
 * [ ] Allow custom download directory.
