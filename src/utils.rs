@@ -4,8 +4,10 @@ use std::{
 	path::Path,
 };
 
-use crate::{downloader::DEFAULT_CACHE_DIRECTORY, structure::post::Page};
-use crate::{downloader::DEFAULT_DOWNLOAD_DIRECTORY, structure::images::ImageCollection};
+use crate::{
+	downloader::{DEFAULT_CACHE_DIRECTORY, DEFAULT_DOWNLOAD_DIRECTORY},
+	structure::{cache::ImageCache, images::ImageCollection, post::Page},
+};
 
 pub fn cmd_pause() {
 	let mut stdin = std::io::stdin();
@@ -44,9 +46,10 @@ pub async fn init_cache_directory() {
 	let is_created = Path::new(&file_path).is_file();
 
 	if !is_created {
-		let page: Page = Page::new(2).await;
-		let collection: ImageCollection = ImageCollection::new(page).await;
-		std::fs::write(file_path, serde_json::to_string_pretty(&collection).unwrap()).unwrap();
+		let page: Page = Page::new(10).await;
+		// let collection: ImageCollection = ImageCollection::new(page).await;
+		let cache: ImageCache = ImageCache::new(&page).await;
+		std::fs::write(file_path, serde_json::to_string_pretty(&cache).unwrap()).unwrap();
 	} else {
 		println!("Cache file already created.");
 	}

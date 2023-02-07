@@ -20,7 +20,7 @@ impl ImageCollection {
 	pub async fn new(page: Page) -> Self {
 		let mut collection: ImageCollection = ImageCollection { images: Vec::new() };
 
-		for post in page.post {
+		for post in page.posts {
 			let post_id = post.id.as_u64().unwrap();
 			if let Ok(..) = Self::verify_file_url(post.file_url.clone()) {
 				let file_url = post.file_url.unwrap();

@@ -24,7 +24,9 @@ async fn main() -> std::io::Result<()> {
 		server::init().await.unwrap();
 	} else {
 		let num_of_images = terminal::term_init();
-		dl_init(num_of_images).await;
+		dl_init(num_of_images)
+			.await
+			.expect("Failed to initialize download mode.");
 	}
 	Ok(())
 }

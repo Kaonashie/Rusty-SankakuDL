@@ -1,6 +1,5 @@
 use anyhow::Error;
 use awc::Client;
-
 use serde::{Deserialize, Serialize};
 use serde_json::{Number, Value};
 
@@ -8,7 +7,7 @@ use serde_json::{Number, Value};
 pub struct Page {
 	meta: Option<Meta>,
 	#[serde(rename = "data")]
-	pub(crate) post: Vec<Post>,
+	pub(crate) posts: Vec<Post>,
 }
 #[derive(Serialize, Deserialize, Debug)]
 struct Meta {
@@ -20,7 +19,7 @@ pub struct Post {
 	pub(crate) id: Number,
 	rating: String,
 	status: String,
-	author: Author,
+	pub author: Author,
 	pub(crate) sample_url: Option<String>,
 	sample_width: Option<i64>,
 	sample_height: Option<i64>,
@@ -55,13 +54,13 @@ pub struct Post {
 	is_status_locked: bool,
 	redirect_to_signup: bool,
 	sequence: Option<serde_json::Value>,
-	tags: Vec<Tag>,
+	pub(crate) tags: Vec<Tag>,
 	video_duration: Option<serde_json::Value>,
 }
 #[derive(Clone, Serialize, Deserialize, Debug)]
-struct Tag {
-	id: i64,
-	name_en: String,
+pub struct Tag {
+	pub id: i64,
+	pub name_en: String,
 	name_ja: Option<String>,
 	#[serde(rename = "type")]
 	tag_type: i64,
@@ -84,7 +83,7 @@ struct CreatedAt {
 	n: i64,
 }
 #[derive(Clone, Serialize, Deserialize, Debug)]
-struct Author {
+pub struct Author {
 	id: i64,
 	name: String,
 	avatar: String,
