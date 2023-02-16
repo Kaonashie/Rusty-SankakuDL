@@ -28,6 +28,3 @@ bytes = "1.4.0"
 # Http server for service to js frontend
 actix-web = "4.3.0"
 actix-cors = "0.6.4"
-
-# Runtime for main thread
-tokio = { version = "1.25.0", features = ["macros", "rt-multi-thread"] }

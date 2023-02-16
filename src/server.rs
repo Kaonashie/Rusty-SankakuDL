@@ -1,9 +1,17 @@
-use std::{fs::File, io::Read};
+use std::{
+	fs::File,
+	io::{Read, Write},
+};
 
-use crate::{downloader::DEFAULT_CACHE_DIRECTORY, structure::post::Post, utils::init_cache_directory};
 use actix_cors::Cors;
 use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder, Result};
 use awc::Client;
+
+use crate::{
+	downloader::DEFAULT_CACHE_DIRECTORY,
+	structure::post::Post,
+	utils::{init_cache_directory, parse_file_url},
+};
 
 #[get("/image")]
 async fn serve_image(_req: HttpRequest) -> Result<impl Responder> {
@@ -61,12 +69,29 @@ async fn get_sample_data(path: web::Path<u32>) -> Result<impl Responder> {
 		.await
 		.unwrap();
 	let data = res.body().limit(bytesize::ByteSize::gb(1).as_u64() as usize).await?;
-	Ok(HttpResponse::Ok().content_type("image").body(data))
+
+	let preview_url = post.preview_url.unwrap();
+	let file_ext = parse_file_url(preview_url.as_str(), post_id.into()).unwrap();
+	let file_path = format!("{}/samples/{}.", DEFAULT_CACHE_DIRECTORY, file_ext);
+
+	if !std::path::Path::new(&file_path).exists() {
+		let mut file = std::fs::File::create(file_path).unwrap();
+		file.write_all(&data).expect("Failed to write image data to file.");
+		// println!("File fetched from sankaku server."); Debug print to see if cache works
+		Ok(HttpResponse::Ok().content_type("image").body(data))
+	} else {
+		let mut bytes = Vec::new();
+		let mut file = File::open(file_path).unwrap();
+		file.read_to_end(&mut bytes).expect("Failed to read file.");
+		// println!("File fetched from local storage."); Debug print so see if cache works
+		Ok(HttpResponse::Ok().content_type("image").body(bytes))
+	}
 }
 
 fn get_cache_files() -> Vec<String> {
+	let path = format!("{}/json", DEFAULT_CACHE_DIRECTORY);
 	let mut files_in_dir: Vec<String> = Vec::new();
-	for file in std::fs::read_dir(DEFAULT_CACHE_DIRECTORY).unwrap() {
+	for file in std::fs::read_dir(&path).unwrap() {
 		let file = file.unwrap();
 		let path = file.path();
 		files_in_dir.push(path.to_str().unwrap().to_string());
